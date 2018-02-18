@@ -4,6 +4,8 @@
 
 # Dropping all the current rules
 iptables -F
+#iptables -t nat -F
+#iptables -t nat -X
 
 # Set policy for connections
 iptables -P INPUT DROP
@@ -14,28 +16,19 @@ iptables -P OUTPUT DROP
 iptables -A INPUT  -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
-# Accept any related or established connection
-iptables -I INPUT  -m state --state RELATED,ESTABLISHED -j ACCEPT -s l-free-01.protonvpn.com -p 1194
-iptables -I OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT -s l-free-01.protonvpn.com -p 1194
+# Setting rules for local network 
+iptables -A INPUT  -s 192.168.1.0/24 -j ACCEPT
+iptables -A OUTPUT -s 192.168.1.0/24 -j ACCEPT
 
+# VPN Establishment  
+iptables -I INPUT --src 46.166.142.215,89.39.107.202 -j ACCEPT  # set here you vpn ip addresses
+iptables -I OUTPUT --dst 46.166.142.215,89.39.107.202 -j ACCEPT 
 
-# Allow outbond DCHP request
-iptables -A OUTPUT -o wlp2s0 -p udp --dport 67:68 --sport 67:68 -j ACCEPT
+# Allow VPN traffic
+iptables -A INPUT  -p udp --sport 1194 -j ACCEPT #It seems that it also works without these lines...
+iptables -A OUTPUT -p udp --dport 1194 -j ACCEPT
 
-# Allow inboud ssh
-iptables -A INPUT -i wlp2s0 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
-
-# Outbout DNS lookups
-iptables -A OUTPUT -o wlp2s0 -p udp -m udp --dport 53 -j ACCEPT -s l-free-01.protonvpn.com -p 1194
-
-# Outbound ping request
-iptables -A OUTPUT -o wlp2s0 -p icmp -j ACCEPT
-
-# Outbound Network Time Protocol (NTP) 
-iptables -A OUTPUT -o wlp2s0 -p udp --dport 123 --sport 123 -j ACCEPT
-
-# Outbound HTTP and HTTPS
-iptables -A OUTPUT -o wlp2s0 -p tcp -m tcp --dport 80 -m state --state NEW -j ACCEPT  -s l-free-01.protonvpn.com -p 1194
-iptables -A OUTPUT -o wlp2s0 -p tcp -m tcp --dport 443 -m state --state NEW -j ACCEPT  -s l-free-01.protonvpn.com -p 1194
-
-
+# Allow communication through tunnel
+iptables -A INPUT    -i tun+ -j ACCEPT
+iptables -A OUTPUT   -o tun+ -j ACCEPT
+iptables -A FORWARD  -i tun+ -j ACCEPT
