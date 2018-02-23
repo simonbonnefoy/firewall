@@ -24,6 +24,7 @@ iptables -A OUTPUT -o wlp2s0 -p udp --dport 67:68 --sport 67:68 -j ACCEPT
 
 # Allow inboud ssh
 iptables -A INPUT -i wlp2s0 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
+iptables -A OUTPUT -o wlp2s0 -p tcp -m tcp --dport 22 -m state --state NEW -j ACCEPT
 
 # Outbout DNS lookups
 iptables -A OUTPUT -o wlp2s0 -p udp -m udp --dport 53 -j ACCEPT
