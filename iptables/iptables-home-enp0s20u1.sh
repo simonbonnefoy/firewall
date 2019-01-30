@@ -1,6 +1,8 @@
 #!/usr/bin/bash
 
-# Check how to pass several interfaces as argument...
+# Firewall rule for standard use
+# It has been modified to handle also VPN connection
+# But be careful, this has no kill switch and is not DNS leak-proof.
 
 # Dropping all the current rules
 iptables -F

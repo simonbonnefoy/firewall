@@ -1,6 +1,10 @@
 #!/usr/bin/bash
 
-# Firewall rules to be set while using a VPN (kill switch)
+# Firewall rules to be set while using a VPN 
+# It should also take care of the DNS leak by blocking the 
+# ISP's DNS server (to be set accordingly)
+
+# ToDo: implement a kill switch...
 
 # Dropping all the current rules
 iptables -F
